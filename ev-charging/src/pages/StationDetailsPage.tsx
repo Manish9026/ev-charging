@@ -5,21 +5,29 @@ import { useStations } from '../contexts/StationContext';
 import { useAuth } from '../contexts/AuthContext';
 import StationReviewItem from '../components/stations/StationReviewItem';
 import AddReviewForm from '../components/stations/AddReviewForm';
+import { useStationByIdQuery, useStationsQuery } from '@/services/station';
 
 const StationDetailsPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
   const { getStation, toggleFavorite, isFavorite } = useStations();
   const { user } = useAuth();
-  const [station, setStation] = useState(getStation(id || ''));
   const [activeTab, setActiveTab] = useState('details');
   const [showAddReview, setShowAddReview] = useState(false);
+  const {data}=useStationByIdQuery(id,{
+    refetchOnFocus:true,
+    refetchOnReconnect:true
+  })
+  const [station, setStation] = useState(data?.station);
+
+  // console.log(data,"date");
   
   useEffect(() => {
     // Re-fetch station when coming back to this page
     if (id) {
-      setStation(getStation(id));
+      
+      setStation(data?.station);
     }
-  }, [id, getStation]);
+  }, [id,data]);
   
   if (!station) {
     return (
@@ -41,7 +49,7 @@ const StationDetailsPage: React.FC = () => {
   const handleReviewSuccess = () => {
     setShowAddReview(false);
     // Update station data to show new review
-    setStation(getStation(station._id));
+    // setStation(getStation(station._id));
   };
   
   const isStationFavorite = user ? isFavorite(station._id) : false;
@@ -173,7 +181,7 @@ const StationDetailsPage: React.FC = () => {
                   <div>
                     <h3 className="text-lg font-medium mb-2">Charger Types</h3>
                     <div className="flex flex-wrap gap-2">
-                      {station.chargerTypes.map((type) => (
+                      {station.chargerTypes.map((type:string) => (
                         <span key={type} className="bg-gray-100 text-gray-800 px-3 py-1 rounded-full text-sm">
                           {type}
                         </span>
@@ -184,7 +192,7 @@ const StationDetailsPage: React.FC = () => {
                   <div>
                     <h3 className="text-lg font-medium mb-2">Amenities</h3>
                     <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                      {station.amenities.map((amenity) => (
+                      {station.amenities.map((amenity:any) => (
                         <div key={amenity.type} className="flex items-center">
                           <div className={`w-3 h-3 rounded-full mr-2 ${amenity.available ? 'bg-success-500' : 'bg-gray-300'}`}></div>
                           <span className={amenity.available ? 'text-gray-800' : 'text-gray-500'}>
@@ -199,7 +207,7 @@ const StationDetailsPage: React.FC = () => {
                     <h3 className="text-lg font-medium mb-2">Hours of Operation</h3>
                     {station.openingHours ? (
                       <div className="space-y-2">
-                        {station.openingHours.map((hours, index) => (
+                        {station.openingHours.map((hours:any, index:number) => (
                           <div key={index} className="flex items-start">
                             <Clock className="h-5 w-5 text-gray-500 mr-2 mt-0.5" />
                             <div>
@@ -250,7 +258,7 @@ const StationDetailsPage: React.FC = () => {
                 
                 <div className="divide-y divide-gray-200">
                   {station.reviews.length > 0 ? (
-                    station.reviews.map((review) => (
+                    station.reviews.map((review:any) => (
                       <StationReviewItem key={review._id} review={review} />
                     ))
                   ) : (

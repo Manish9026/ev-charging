@@ -3,12 +3,16 @@ import ChargingMap from '../components/map/ChargingMap';
 import FilterPanel from '../components/map/FilterPanel';
 import { useStations } from '../contexts/StationContext';
 import StationCard from '../components/stations/StationCard';
+import { useStationsQuery } from '@/services/station';
 
 const MapPage: React.FC = () => {
   const [filters, setFilters] = useState({});
-  const [showListView, setShowListView] = useState(false);
+  const [showListView, setShowListView] = useState(true);
   const { stations, loading } = useStations();
-
+const {data}=useStationsQuery(undefined,{
+    refetchOnFocus:true,
+    refetchOnReconnect:true
+  })
   const handleFilterChange = (newFilters: any) => {
     setFilters(newFilters);
   };
@@ -74,7 +78,7 @@ const MapPage: React.FC = () => {
                     ))}
                   </div>
                 ) : (
-                  stations.slice(0, 3).map(station => (
+                  data?.stations.slice(0, 3).map((station:any) => (
                     <StationCard key={station._id} station={station} />
                   ))
                 )}
@@ -86,7 +90,7 @@ const MapPage: React.FC = () => {
         {/* Main Content */}
         <div className="flex-1">
           {!showListView ? (
-            <ChargingMap filters={filters} />
+            <ChargingMap filters={filters}  stations={data?.stations}/>
           ) : (
             <div className="p-4 h-full overflow-y-auto">
               <div className="md:hidden mb-4">
@@ -99,7 +103,7 @@ const MapPage: React.FC = () => {
                     <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
                   </div>
                 ) : (
-                  stations.map(station => (
+                  data?.stations.map((station:any) => (
                     <StationCard key={station._id} station={station} />
                   ))
                 )}

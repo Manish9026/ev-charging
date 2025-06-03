@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { User, Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
@@ -12,22 +12,29 @@ const RegisterForm: React.FC = () => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { register } = useAuth();
+  const { register, user } = useAuth();
 
+
+  useEffect(() => {
+
+    if (user?.isLoggedIn) {
+      navigate('/')
+    }
+  }, [user?.isLoggedIn])
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    
+
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
+
     setIsSubmitting(true);
-    
+
     try {
       await register(name, email, password);
-      navigate('/map');
+      // navigate('/map');
     } catch (err) {
       setError('Registration failed. Please try again.');
     } finally {
@@ -42,7 +49,7 @@ const RegisterForm: React.FC = () => {
           {error}
         </div>
       )}
-      
+
       <div>
         <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
           Name
@@ -62,7 +69,7 @@ const RegisterForm: React.FC = () => {
           />
         </div>
       </div>
-      
+
       <div>
         <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
           Email
@@ -82,7 +89,7 @@ const RegisterForm: React.FC = () => {
           />
         </div>
       </div>
-      
+
       <div>
         <label htmlFor="password" className="block text-sm font-medium text-gray-700 mb-1">
           Password
@@ -114,7 +121,7 @@ const RegisterForm: React.FC = () => {
           </button>
         </div>
       </div>
-      
+
       <div>
         <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-700 mb-1">
           Confirm Password
@@ -134,7 +141,7 @@ const RegisterForm: React.FC = () => {
           />
         </div>
       </div>
-      
+
       <div className="flex items-center">
         <input
           id="terms"
@@ -153,7 +160,7 @@ const RegisterForm: React.FC = () => {
           </a>
         </label>
       </div>
-      
+
       <button
         type="submit"
         className="btn btn-primary w-full"
@@ -168,7 +175,7 @@ const RegisterForm: React.FC = () => {
           'Sign up'
         )}
       </button>
-      
+
       <div className="text-center mt-4">
         <p className="text-sm text-gray-600">
           Already have an account?{' '}

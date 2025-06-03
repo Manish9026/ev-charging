@@ -7,7 +7,7 @@ import { initSocket } from './socket.js';
 import stationRoutes from './routes/stationRoutes.js';
 import userRoutes from './routes/userRoutes.js';
 import Station from './models/Station.js';
-
+import cookieParser from 'cookie-parser'
 dotenv.config();
 
 // Connect to database
@@ -18,7 +18,12 @@ const httpServer = createServer(app);
 const io = initSocket(httpServer);
 
 // Middleware
-app.use(cors());
+app.use(cookieParser());
+app.use(cors({
+    origin: [process.env.BASE_URL,"http://localhost:5173"],
+    credentials: true,
+    methods: ["POST", "GET", "DELETE", "PATCH"]
+}));
 app.use(express.json());
 
 // Routes

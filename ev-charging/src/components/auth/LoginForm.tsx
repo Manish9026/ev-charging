@@ -1,7 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Mail, Lock, Eye, EyeOff } from 'lucide-react';
 import { useAuth } from '../../contexts/AuthContext';
+import { useLoginMutation } from '@/services/auth';
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -10,7 +11,16 @@ const LoginForm: React.FC = () => {
   const [error, setError] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-  const { login } = useAuth();
+  // const [login,{isLoading}]=useLoginMutation();
+  const { login,user ,loading} = useAuth();
+  useEffect(()=>{
+
+    console.log(user?.isLoggedIn,"loggedin");
+    
+    if(user?.isLoggedIn){
+      navigate('/')
+    }
+  },[user?.isLoggedIn])
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -18,8 +28,8 @@ const LoginForm: React.FC = () => {
     setIsSubmitting(true);
     
     try {
-      await login(email, password);
-      navigate('/map');
+      login(email, password)
+      // navigate('/map');
     } catch (err) {
       setError('Invalid email or password');
     } finally {
@@ -107,9 +117,9 @@ const LoginForm: React.FC = () => {
       <button
         type="submit"
         className="btn btn-primary w-full"
-        disabled={isSubmitting}
+        disabled={loading}
       >
-        {isSubmitting ? (
+        {loading ? (
           <div className="flex items-center justify-center">
             <div className="animate-spin h-4 w-4 border-2 border-white border-t-transparent rounded-full mr-2"></div>
             Logging in...

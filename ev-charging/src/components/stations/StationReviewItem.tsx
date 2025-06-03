@@ -24,25 +24,25 @@ const StationReviewItem: React.FC<StationReviewItemProps> = ({ review }) => {
         </div>
         <div className="flex-1">
           <div className="flex items-center justify-between">
-            <h4 className="font-medium">{review.user.name}</h4>
-            <span className="text-sm text-gray-500">{formatDate(review.createdAt)}</span>
+            <h4 className="font-medium">{review?.user?.name}</h4>
+            <span className="text-sm text-gray-500">{formatDate(review?.createdAt)}</span>
           </div>
           
           <div className="flex items-center mt-1 mb-2">
             {[...Array(5)].map((_, i) => (
               <Star 
                 key={i} 
-                className={`h-4 w-4 ${i < review.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} 
+                className={`h-4 w-4 ${i < review?.rating ? 'text-yellow-500 fill-yellow-500' : 'text-gray-300'}`} 
               />
             ))}
           </div>
           
-          <p className="text-gray-700 mb-3">{review.comment}</p>
+          <p className="text-gray-700 mb-3">{review?.comment}</p>
           
           <div className="flex items-center text-sm text-gray-500">
             <button className="flex items-center hover:text-gray-700">
               <ThumbsUp className="h-4 w-4 mr-1" />
-              Helpful ({review.helpfulCount})
+              Helpful ({review?.helpfulCount})
             </button>
             <span className="mx-2">•</span>
             <button className="flex items-center hover:text-gray-700">

@@ -7,4 +7,5 @@ export interface User {
   profileImage?: string;
   createdAt?: string;
   favorites?: string[];
+  isLoggedIn?:boolean;
 }

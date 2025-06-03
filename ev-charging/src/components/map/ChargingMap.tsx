@@ -60,48 +60,50 @@ interface ChargingMapProps {
     availability?: string;
     priceRange?: [number, number];
   };
+  stations?:object
 }
 
-const ChargingMap: React.FC<ChargingMapProps> = ({ filters }) => {
+const ChargingMap: React.FC<ChargingMapProps> = ({ stations,filters }) => {
   const navigate = useNavigate();
-  const { stations, loading } = useStations();
+  const {  loading } = useStations();
   const [filteredStations, setFilteredStations] = useState(stations);
 
-  useEffect(() => {
-    if (stations.length > 0 && filters) {
-      const filtered = stations.filter((station) => {
-        // Filter by charger type
-        if (filters.chargerType && filters.chargerType.length > 0) {
-          if (!station.chargerTypes.some(type => filters.chargerType?.includes(type))) {
-            return false;
-          }
-        }
+
+  // useEffect(() => {
+  //   if (stations.length > 0 && filters) {
+  //     const filtered = stations.filter((station) => {
+  //       // Filter by charger type
+  //       if (filters.chargerType && filters.chargerType.length > 0) {
+  //         if (!station.chargerTypes.some(type => filters.chargerType?.includes(type))) {
+  //           return false;
+  //         }
+  //       }
         
-        // Filter by availability
-        if (filters.availability) {
-          if (filters.availability === 'available' && station.status !== 'available') {
-            return false;
-          } else if (filters.availability === 'occupied' && station.status !== 'occupied') {
-            return false;
-          }
-        }
+  //       // Filter by availability
+  //       if (filters.availability) {
+  //         if (filters.availability === 'available' && station.status !== 'available') {
+  //           return false;
+  //         } else if (filters.availability === 'occupied' && station.status !== 'occupied') {
+  //           return false;
+  //         }
+  //       }
         
-        // Filter by price range
-        if (filters.priceRange) {
-          const [min, max] = filters.priceRange;
-          if (station.pricePerKwh < min || station.pricePerKwh > max) {
-            return false;
-          }
-        }
+  //       // Filter by price range
+  //       if (filters.priceRange) {
+  //         const [min, max] = filters.priceRange;
+  //         if (station.pricePerKwh < min || station.pricePerKwh > max) {
+  //           return false;
+  //         }
+  //       }
         
-        return true;
-      });
+  //       return true;
+  //     });
       
-      setFilteredStations(filtered);
-    } else {
-      setFilteredStations(stations);
-    }
-  }, [stations, filters]);
+  //     setFilteredStations(filtered);
+  //   } else {
+  //     setFilteredStations(stations);
+  //   }
+  // }, [stations, filters]);
 
   const handleStationClick = (stationId: string) => {
     navigate(`/stations/${stationId}`);
@@ -117,7 +119,7 @@ const ChargingMap: React.FC<ChargingMapProps> = ({ filters }) => {
 
   return (
     <div className="h-full w-full relative">
-      <MapContainer center={[37.7749, -122.4194]} zoom={12} className="h-full w-full">
+      <MapContainer  center={[37.7749, -122.4194]} zoom={12} className="h-full w-full">
         <TileLayer
           attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

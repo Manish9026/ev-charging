@@ -3,7 +3,7 @@ import { baseUrl } from "./index";
 
 
 const baseQuery=fetchBaseQuery({
-    baseUrl:`${baseUrl}/api/auth`,
+    baseUrl:`${baseUrl}/api/users`,
     credentials:"include"
 })
 
@@ -16,6 +16,7 @@ export const authApi=createApi({
         login:builder.mutation({
             query:(data)=>({
                 url:"login",
+                 method:"POST",
                 body:data
             })
         }),
@@ -23,12 +24,21 @@ export const authApi=createApi({
         register:builder.mutation({
             query:(data)=>({
                 url:"register",
+                method:"POST",
                 body:data
             })
         }),
         verifyUser:builder.query({
             query:()=>({
                 url:"verify-user",
+                method:"GET",
+            })
+        }),
+        
+        logout:builder.query({
+            query:()=>({
+                url:"logout",
+                method:"GET",
             })
         }),
 
@@ -36,4 +46,4 @@ export const authApi=createApi({
 
 })
 
-export const {useLoginMutation,useRegisterMutation,useLazyVerifyUserQuery}=authApi;
+export const {useLoginMutation,useRegisterMutation,useLazyVerifyUserQuery,useLazyLogoutQuery}=authApi;

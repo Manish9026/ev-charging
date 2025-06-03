@@ -10,8 +10,8 @@ export const authUser = async (req, res) => {
     
     if (user && (await user.matchPassword(password))) {
 
-      const accessToken = generateToken({userId:user._id, userRole:user.role}, "15m");
-    const newRefreshToken =generateToken({userId:user._id, userRole:user.role}, "7d");
+      const accessToken = generateToken({id:user._id, userRole:user.role}, "15m");
+    const newRefreshToken =generateToken({id:user._id, userRole:user.role}, "7d");
        res.cookie("uAccessToken", accessToken, {
       httpOnly: true,
       secure: true,
@@ -25,7 +25,7 @@ export const authUser = async (req, res) => {
       sameSite: "None",
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
-      return goodResponse({res,data:{user},message:"successfully logedIn!"})
+      return goodResponse({res,data:{user,isLoggedIn:true},message:"successfully logedIn!"})
     } else {
 
       return badResponse({res,statusCode:401,message:"Invalid email or password"})
@@ -63,6 +63,34 @@ export const registerUser = async (req, res) => {
     res.status(400).json({ message: error.message });
   }
 };
+
+export const userVerify=async(req,res)=>{
+  try {
+    
+    const {user}=req;
+    if(!user) return badResponse({res,message:"user Are not authenticated",statusCode:401,data:{isLoggedIn:false}});
+    return goodResponse({res,message:"user Verified!!",statusCode:200,data:{isLoggedIn:true,user}});
+
+  } catch (error) {
+    
+  }
+}
+export const  logout = async (req, res) => {
+
+    res.clearCookie("uAccessToken",{
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
+    res.clearCookie("uRefreshToken",{
+      httpOnly: true,
+      secure: true,
+      sameSite: "None",
+    });
+  
+    goodResponse({res,statusCode:200,message:"Logged out successfully",data:{isLoggedIn:false}})
+    // res.status(200).json({ message: "Logged out successfully" });
+  };
 
 // Toggle favorite station
 export const toggleFavorite = async (req, res) => {

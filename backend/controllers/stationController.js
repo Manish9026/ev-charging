@@ -1,13 +1,18 @@
 import Station from '../models/Station.js';
 import { io } from '../socket.js';
+import { goodResponse } from '../utils/response.js';
 
 // Get all stations
 export const getStations = async (req, res) => {
-  try {
+ try {
     const stations = await Station.find({});
-    res.json(stations);
+    if (stations) {
+      return goodResponse({res,message:"found items!!",data:{stations}})
+    } else {
+      return goodResponse({res,message:"items not found!!",statusCode:404})
+    }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+ return goodResponse({res,message:error?.message,statusCode:500})
   }
 };
 
@@ -15,13 +20,16 @@ export const getStations = async (req, res) => {
 export const getStationById = async (req, res) => {
   try {
     const station = await Station.findById(req.params.id);
+
+    console.log(station);
+    
     if (station) {
-      res.json(station);
+      return goodResponse({res,message:"found items!!",data:{station}})
     } else {
-      res.status(404).json({ message: 'Station not found' });
+      return goodResponse({res,message:"items not found!!",statusCode:404})
     }
   } catch (error) {
-    res.status(500).json({ message: error.message });
+ return goodResponse({res,message:error?.message,statusCode:500})
   }
 };
 

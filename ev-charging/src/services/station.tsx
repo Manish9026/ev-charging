@@ -3,7 +3,7 @@ import { createApi, fetchBaseQuery } from '@reduxjs/toolkit/query/react';
 import { baseUrl } from './index';
 
 const baseQuery=fetchBaseQuery({
-    baseUrl:  `${baseUrl}`,
+    baseUrl:  `${baseUrl}/api/stations`,
     credentials:"include"
 })
 export const stationApi=createApi({
@@ -14,13 +14,19 @@ export const stationApi=createApi({
 
         stations:builder.query({
             query:()=>({
-                url:'station',
-
+                url:``,
+                method:"GET"
+            })
+        }),
+        stationById:builder.query({
+            query:(id)=>({
+                url:`${id}`,
+                method:"GET"
             })
         })
     })
 })
 
-const {useLazyStationsQuery}=stationApi;
+export const {useLazyStationsQuery,useStationsQuery,useStationByIdQuery}=stationApi;
 
 

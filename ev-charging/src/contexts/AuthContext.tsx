@@ -2,6 +2,8 @@ import React, { createContext, useContext, useState, useEffect, ReactNode } from
 import axios from 'axios';
 import { User } from '../types/User';
 import { API_URL } from '../config';
+import { useLazyLogoutQuery, useLazyVerifyUserQuery, useLoginMutation, useRegisterMutation } from '@/services/auth';
+import { useNavigate } from 'react-router-dom';
 
 interface AuthContextType {
   user: User | null;
@@ -21,64 +23,92 @@ interface AuthProviderProps {
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
-
+  const [userRegister,{isLoading:registerLoading}]=useRegisterMutation();
+  const [userLogin,{isLoading:loginLoading}]=useLoginMutation();
+  const [verifyUser]=useLazyVerifyUserQuery({
+    refetchOnFocus:true,
+    refetchOnReconnect:true
+  })
+  const navigate=useNavigate();
+  const [userLogout]=useLazyLogoutQuery({
+    refetchOnFocus:true,
+    refetchOnReconnect:true
+  })
   // Initialize auth state
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem('token');
+  //  console.log(user,"user");
+   if(!user?.isLoggedIn){
+     checkAuth();
+   }
+
+  },[]);
+   const checkAuth = async () => {
+
+
+      verifyUser({}).unwrap().then(res=>{
+        console.log(res);
+        setUser({...res?.user,isLoggedIn:true})  
+      }).catch(err=>{
+        console.log(err);
+        
+      })
       
-      if (token) {
-        try {
-          // For demo purposes, simulating an API response
-          // In a real app, you would verify the token with your backend
-          const user = JSON.parse(localStorage.getItem('user') || '{}');
-          setUser(user);
-        } catch (error) {
-          console.error('Authentication error:', error);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-        }
-      }
+    
       
       setLoading(false);
     };
-
-    checkAuth();
-  }, []);
-
   const login = async (email: string, password: string) => {
     try {
       // Simulate API call for demo
       // In a real app: const response = await axios.post(`${API_URL}/auth/login`, { email, password });
       
+      setLoading(true)
+      await userLogin({email, password}).unwrap().then(res=>{
+
+
+        console.log(res);
+        
+        setUser({...res?.user,isLoggedIn:true})
+        navigate(-1)
+      setLoading(false)
+
+        
+      }).catch((err)=>{
+        setUser(null);
+        console.log(err);
+      setLoading(false)
+
+        
+      })
       // Demo user data
-      let userData;
+      // let userData;
       
-      if (email === 'admin@example.com' && password === 'password') {
-        userData = {
-          _id: '1',
-          name: 'Admin User',
-          email: 'admin@example.com',
-          isAdmin: true,
-        };
-      } else if (email === 'user@example.com' && password === 'password') {
-        userData = {
-          _id: '2',
-          name: 'Test User',
-          email: 'user@example.com',
-          isAdmin: false,
-        };
-      } else {
-        throw new Error('Invalid credentials');
-      }
+      // if (email === 'admin@example.com' && password === 'password') {
+      //   userData = {
+      //     _id: '1',
+      //     name: 'Admin User',
+      //     email: 'admin@example.com',
+      //     isAdmin: true,
+      //   };
+      // } else if (email === 'user@example.com' && password === 'password') {
+      //   userData = {
+      //     _id: '2',
+      //     name: 'Test User',
+      //     email: 'user@example.com',
+      //     isAdmin: false,
+      //   };
+      // } else {
+      //   throw new Error('Invalid credentials');
+      // }
       
-      const token = 'demo-token-' + Math.random().toString(36).substring(2);
+      // const token = 'demo-token-' + Math.random().toString(36).substring(2);
       
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      // localStorage.setItem('token', token);
+      // localStorage.setItem('user', JSON.stringify(userData));
       
-      setUser(userData);
+      // setUser(userData);
     } catch (error) {
+      setLoading(false)
       console.error('Login error:', error);
       throw error;
     }
@@ -89,29 +119,48 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       // Simulate API call for demo
       // In a real app: const response = await axios.post(`${API_URL}/auth/register`, { name, email, password });
       
-      const userData = {
-        _id: '3',
-        name,
-        email,
-        isAdmin: false,
-      };
+      setLoading(true)
+      await userRegister({email,password,name}).unwrap().then(res=>{
+        console.log(res);
+        
+        navigate("/login")
+         setLoading(false)
+      }).catch(err=>{
+        console.log(err);
+         setLoading(false)
+      })
+
+      // const userData = {
+      //   _id: '3',
+      //   name,
+      //   email,
+      //   isAdmin: false,
+      // };
       
-      const token = 'demo-token-' + Math.random().toString(36).substring(2);
+      // const token = 'demo-token-' + Math.random().toString(36).substring(2);
       
-      localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(userData));
+      // localStorage.setItem('token', token);
+      // localStorage.setItem('user', JSON.stringify(userData));
       
-      setUser(userData);
+      // setUser(userData);
     } catch (error) {
       console.error('Registration error:', error);
       throw error;
     }
   };
 
-  const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  const logout = async() => {
+
+    await userLogout({}).unwrap().then((res)=>{
+
+      if(res.status){
     setUser(null);
+    navigate("/login")
+      }
+    }).catch(err=>{
+
+    })
+
   };
 
   const updateUser = async (userData: Partial<User>) => {
