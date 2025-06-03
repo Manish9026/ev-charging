@@ -1,1 +1,1 @@
-export const baseUrl:String="http://localhost:2000"
+export const baseUrl:String= import.meta.env.VITE_SERVER_URL || "http://localhost:2000"
